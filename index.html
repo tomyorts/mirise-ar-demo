@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>MIRISE XR ARデモ</title>
+<style>
+/* layout: one column on phones (viewer, then AR buttons); viewer + side panel on wide screens */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --fg:#1b2430; --muted:#5a6675; --line:#d8dee5; --accent:#2868a8; --accent-fg:#ffffff;
+  --stage:#1d2530; --warn-bg:#fff3d4; --warn-fg:#6a4a00; --ar-bg:#e4f3ea; --ar-fg:#1c5a39; --v3-bg:#e2ecf8; --v3-fg:#1c4878;
+  --font: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){ :root{
+  --bg:#12171d; --panel:#1a212a; --fg:#e4e9ef; --muted:#9aa6b4; --line:#2c3642; --accent:#6aa3e0; --accent-fg:#0d1620; --stage:#0d1116;
+  --warn-bg:#3a2f12; --warn-fg:#f1d58a; --ar-bg:#163324; --ar-fg:#9fe0bb; --v3-bg:#172a40; --v3-fg:#a9cdf2; color-scheme: dark } }
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:max(12px,env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-bottom,0px))}
+h1{font-size:19px;margin:0;text-wrap:balance} h2{font-size:15px;margin:0 0 8px}
+.wrap{display:grid;grid-template-columns:1fr;gap:14px;max-width:1200px;margin:0 auto}
+.head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.flag{font-size:12px;color:var(--warn-fg);background:var(--warn-bg);padding:2px 8px;border-radius:999px}
+.stage{position:relative;background:var(--stage);border-radius:12px;overflow:hidden;height:48vh;min-height:280px}
+.stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.stage .msg{color:#e4e9ef;padding:48px 16px;margin:0}
+.tools{position:absolute;left:8px;top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.tools button{font:inherit;font-size:13px;min-height:38px;padding:4px 12px;border:0;border-radius:8px;background:rgba(255,255,255,.92);color:#1b2430}
+.note{position:absolute;left:10px;right:10px;bottom:6px;font-size:11px;color:#aab4c2}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.badge{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:2px 8px;margin-bottom:8px}
+.b3d{background:var(--v3-bg);color:var(--v3-fg)} .bar{background:var(--ar-bg);color:var(--ar-fg)}
+.btns{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:10px 16px;border-radius:12px;
+  text-decoration:none;font-weight:700;font-size:16px;background:var(--accent);color:var(--accent-fg);border:0}
+.btn img{width:22px;height:22px}
+.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.status{font-size:13px;color:var(--muted)} .status strong{color:var(--fg)}
+.small{font-size:13px;color:var(--muted)} .tiny{font-size:12px;color:var(--muted)}
+.dims{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
+ul{padding-left:1.2em;margin:6px 0}
+code{font-family:var(--mono);font-size:12px;word-break:break-all}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (min-width:900px){ .wrap{grid-template-columns:minmax(0,1fr) 380px} .head{grid-column:1/-1} .stage{height:calc(100vh - 120px)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>MIRISE XR ARデモ</h1>
+    <span class="flag">合成データ・研究試作（臨床使用不可）</span>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="tools">
+      <button id="reset" type="button">リセット</button>
+      <button id="vz" type="button">+Z視点</button>
+      <button id="vx" type="button">+X視点</button>
+      <button id="vy" type="button">+Y視点</button>
+    </div>
+    <div class="note">1本指で回転・2本指で拡大/移動。表示中のモデルはAR用と同じ gauge.glb です。</div>
+  </div>
+
+  <div style="display:grid;gap:14px;min-width:0">
+    <div class="panel">
+      <span class="badge bar">卓上AR（机や床に置いて見る表示。模型・患者への位置合わせではありません）</span>
+      <h2>スマホでARを開く</h2>
+      <div class="btns">
+        <a class="btn" id="ql" rel="ar" href="gauge.usdz" aria-disabled="true"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.8'%3E%3Cpath d='M12 2l9 5v10l-9 5-9-5V7z'/%3E%3Cpath d='M12 22V12M3 7l9 5 9-5'/%3E%3C/svg%3E"><span>iPhone / iPad でAR（Quick Look）</span></a>
+        <a class="btn" id="sv" href="#" aria-disabled="true">Android でAR（Scene Viewer）</a>
+      </div>
+      <p class="status">この端末：<strong id="platform">判定中…</strong></p>
+      <p class="status" id="reason"></p>
+      <ul class="small">
+        <li>iPhone / iPad は <strong>Safari</strong> で開いてください。床や机にカメラを向け、平面が見つかるとモデルが置かれます。</li>
+        <li>等倍（1:1）で書き出しています。本体の長辺は 100 mm です。ARの「等倍」は拡大縮小の制限で、実物との位置一致を意味しません。</li>
+        <li>AR表示中はこのページの操作は使えません。</li>
+      </ul>
+      <p class="tiny">ボタンを押した後にARが表示されたかどうかは、このページからは判定できません。実機での動作は未確認です。</p>
+    </div>
+
+    <div class="panel">
+      <span class="badge b3d">3Dビューア（ブラウザ表示・ARではありません）</span>
+      <h2>モデル</h2>
+      <p class="dims" id="dims">読み込み中…</p>
+      <p class="small">合成の100 mm非対称ゲージ2部品（青：本体 100×60×40 mm、橙：オフセットキー 10 mm角）。解剖学的形状ではありません。STLを「mm」と確定してアプリに取り込み、snapshotから生成しました。</p>
+      <p class="tiny">snapshot <code>snap_dc11a3d846580030d3757911</code><br>
+        USDZ <code>sha256:1ef8f9786ae7d1b0fa899072429c86f2f48a663bc977076384f7abddc2c34376</code><br>
+        GLB <code>sha256:52ce90353f73faf00f1796eb6b80fb336ad8e3d2a74d40258ed73a91fc08d1ba</code><br>
+        生成：three r186 GLTFExporter / USDZExporter（MIRISE XR Studio）</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+(function () {
+  // ---------- AR capability (same rules as src/lib/ar-capabilities.ts) ----------
+  var ua = navigator.userAgent;
+  var isAndroid = /Android/i.test(ua);
+  var isIphone = /iPhone|iPod/.test(ua);
+  var isIpad = /iPad/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var a = document.createElement('a');
+  var relAr = !!(a.relList && a.relList.supports && a.relList.supports('ar'));
+  var ql = document.getElementById('ql'), sv = document.getElementById('sv');
+  var platform = isAndroid ? 'Android' : isIphone ? 'iPhone' : isIpad ? 'iPad' : 'PC / その他';
+  var reason = '';
+  if (relAr) { ql.setAttribute('aria-disabled', 'false'); reason = 'このブラウザはAR Quick Look に対応と報告しています。'; }
+  else if (isIphone || isIpad) { reason = 'このブラウザは Quick Look 非対応と報告しています。Safari で開き直してください。'; }
+  if (isAndroid) {
+    var file = new URL('gauge.glb', location.href).toString();
+    var q = new URLSearchParams({ file: file, mode: 'ar_preferred', resizable: 'false', title: 'MIRISE ゲージ（合成）' });
+    sv.href = 'intent://arvr.google.com/scene-viewer/1.0?' + q.toString() +
+      '#Intent;scheme=https;package=com.google.android.googlequicksearchbox;action=android.intent.action.VIEW;' +
+      'S.browser_fallback_url=' + encodeURIComponent(location.href) + ';end;';
+    sv.setAttribute('aria-disabled', 'false');
+    reason = 'Android では Google アプリの Scene Viewer に渡します。非対応端末では3D表示に戻ります。';
+  }
+  if (!relAr && !isAndroid && !isIphone && !isIpad) reason = 'この端末ではモバイルARを起動できません。iPhone / iPad の Safari、または Android の Chrome でこのページを開いてください。';
+  document.getElementById('platform').textContent = platform;
+  document.getElementById('reason').textContent = reason;
+  [ql, sv].forEach(function (el) { el.addEventListener('click', function () { document.getElementById('reason').textContent = '起動を要求しました（AR表示の成否はこのページからは判定できません）。'; }); });
+
+  // ---------- 3D viewer (loads the same GLB used for AR) ----------
+  var stage = document.getElementById('stage');
+  var gl = false;
+  try { var c = document.createElement('canvas'); gl = !!(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) {}
+  if (!gl || !window.THREE || !THREE.GLTFLoader) {
+    stage.insertAdjacentHTML('beforeend', '<p class="msg">この端末ではWebGLまたは3Dライブラリが使えないため、3D表示できません。ARボタンは使える場合があります。</p>');
+    document.getElementById('dims').textContent = '—';
+    return;
+  }
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.setClearColor(getComputedStyle(document.documentElement).getPropertyValue('--stage').trim() || '#1d2530');
+  stage.prepend(renderer.domElement);
+  var scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x404850, 0.9));
+  var dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(0.5, 1, 0.8); scene.add(dl);
+  var camera = new THREE.PerspectiveCamera(40, 1, 0.001, 50);
+  var controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.screenSpacePanning = true;
+  var root = null;
+  function render() { renderer.render(scene, camera); }
+  function fit(dir) {
+    if (!root) return;
+    var b = new THREE.Box3().setFromObject(root);
+    var ctr = b.getCenter(new THREE.Vector3()), r = b.getSize(new THREE.Vector3()).length();
+    var d = (dir || new THREE.Vector3(0.6, 0.45, 1)).clone().normalize();
+    if (Math.abs(d.y) > 0.99) camera.up.set(0, 0, -1); else camera.up.set(0, 1, 0);
+    camera.position.copy(ctr).addScaledVector(d, r * 1.7);
+    camera.near = r / 200; camera.far = r * 50; camera.updateProjectionMatrix();
+    controls.target.copy(ctr); controls.update(); render();
+  }
+  function resize() {
+    var rc = stage.getBoundingClientRect();
+    renderer.setSize(rc.width, rc.height, false);
+    renderer.domElement.style.width = '100%'; renderer.domElement.style.height = '100%';
+    camera.aspect = rc.width / Math.max(1, rc.height); camera.updateProjectionMatrix(); render();
+  }
+  new ResizeObserver(resize).observe(stage);
+  controls.addEventListener('change', render);
+  document.getElementById('reset').onclick = function () { fit(); };
+  document.getElementById('vz').onclick = function () { fit(new THREE.Vector3(0, 0, 1)); };
+  document.getElementById('vx').onclick = function () { fit(new THREE.Vector3(1, 0, 0)); };
+  document.getElementById('vy').onclick = function () { fit(new THREE.Vector3(0, 1, 0)); };
+  new THREE.GLTFLoader().load('gauge.glb', function (g) {
+    root = g.scene; scene.add(root);
+    var s = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3()).multiplyScalar(1000);
+    document.getElementById('dims').textContent = '全体 ' + s.x.toFixed(1) + ' × ' + s.y.toFixed(1) + ' × ' + s.z.toFixed(1) + ' mm（GLBの実寸、m単位から換算）';
+    resize(); fit();
+  }, undefined, function () {
+    stage.insertAdjacentHTML('beforeend', '<p class="msg">gauge.glb を読み込めませんでした。</p>');
+  });
+})();
+</script>
+</body>
+</html>
