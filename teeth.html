@@ -64,7 +64,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
       <button id="vx" type="button">+X視点</button>
       <button id="vy" type="button">+Y視点</button>
     </div>
-    <div class="note">1本指で回転・2本指で拡大/移動。表示中のモデルはAR用と同じ teeth.glb です（約12 MB、読み込みに少し時間がかかります）。</div>
+    <div class="note">1本指で回転・2本指で拡大/移動。表示中のモデルはAR用と同じ teeth.glb です（約2 MB）。</div>
   </div>
 
   <div style="display:grid;gap:14px;min-width:0">
@@ -80,7 +80,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
       <ul class="small">
         <li>iPhone / iPad は <strong>Safari</strong> で開いてください。床や机にカメラを向け、平面が見つかるとモデルが置かれます。</li>
         <li>等倍（1:1）・上下の咬み合わせ位置を保ったまま書き出しています。ARの「等倍」は拡大縮小の制限で、実物との位置一致を意味しません。</li>
-        <li>iPhone用ファイルは約45 MBあります。Wi-Fiか高速回線で開いてください。</li>
+        <li>スマホで開きやすいよう表示用に軽量化しています（iPhone用 約9 MB）。元スキャンとの形の差は実測で最大0.09 mm（中央値0.004 mm）です。</li>
         <li>iPhone（Quick Look）の色は、スキャンの頂点カラーを画像に焼き込んで表示しています（実機での見え方は確認中）。</li>
         <li>AR表示中はこのページの操作は使えません。</li>
       </ul>
@@ -92,9 +92,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
       <h2>モデル</h2>
       <p class="dims" id="dims">読み込み中…</p>
       <p class="small">口腔内スキャナー（PLY、頂点カラー付き）の上顎・下顎歯列サンプル。PLYを「mm」・「Z-up→Y-up」と確定してアプリに取り込み、snapshotから生成しました。</p>
-      <p class="tiny">snapshot <code>snap_f962bf89f6cae4e774a5a91b</code><br>
-        USDZ <code>sha256:75e97ea332a0c26c45fc225d7a2d731a1283b63dcb97b03ae8345071e58b852f</code>（頂点カラーをJPEGテクスチャに焼き込み）<br>
-        GLB <code>sha256:d66919b77da5747c6276464f3e74aaa073d2d767323a23681739aede271f450c</code>（頂点カラー COLOR_0）<br>
+      <p class="tiny">snapshot <code>snap_4771e62d5674e7000aa41454</code><br>
+        USDZ <code>sha256:6fc90bf3651f834d8cd3fd9da9695c972bda4a80615e983e3d3055a978a349f0</code>（頂点カラーをJPEGテクスチャに焼き込み、表示用に軽量化 約8万三角形）<br>
+        GLB <code>sha256:b994bcdce0934420a14df2b4e984a347f1116bf234903cb3499422b10337f2dd</code>（頂点カラー COLOR_0、表示用に軽量化）<br>
         生成：MIRISE XR Studio（GLB: three r186 GLTFExporter、USDZ: 焼き込みライタ）</p>
       <p class="small"><a href="./">← ゲージデモへ</a></p>
     </div>

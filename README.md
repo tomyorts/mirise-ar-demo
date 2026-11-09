@@ -20,7 +20,9 @@ ARの「等倍」は拡大縮小の制限で、実物・患者との位置一致
 
 | ファイル | sha256 | 内容 |
 |---|---|---|
-| teeth.usdz | 75e97ea332a0c26c45fc225d7a2d731a1283b63dcb97b03ae8345071e58b852f | iPhone/iPad用。頂点カラーをJPEGテクスチャに焼き込み（約45 MB） |
-| teeth.glb | d66919b77da5747c6276464f3e74aaa073d2d767323a23681739aede271f450c | Android・3D表示用。頂点カラー COLOR_0（約12 MB） |
+| teeth.usdz | 6fc90bf3651f834d8cd3fd9da9695c972bda4a80615e983e3d3055a978a349f0 | iPhone/iPad用。頂点カラーをJPEGテクスチャに焼き込み、表示用に軽量化（約9 MB） |
+| teeth.glb | b994bcdce0934420a14df2b4e984a347f1116bf234903cb3499422b10337f2dd | Android・3D表示用。頂点カラー COLOR_0、表示用に軽量化（約2 MB） |
 
 PLY（mm）を Z-up→Y-up で取り込み、上下の位置関係を保ったまま床置き・等倍で書き出しています。
+
+表示用の軽量化：上顎 23.7万→4万、下顎 17.2万→4万三角形（meshoptimizer、境界固定）。元スキャンの全頂点から軽量化後の表面までの実測距離は中央値 0.003–0.004 mm、最大 0.093 mm。
