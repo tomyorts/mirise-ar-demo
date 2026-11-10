@@ -64,7 +64,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
       <button id="vx" type="button">+X視点</button>
       <button id="vy" type="button">+Y視点</button>
     </div>
-    <div class="note">1本指で回転・2本指で拡大/移動。表示中のモデルはAR用と同じ gauge.glb です。</div>
+    <div class="note">1本指でどの方向にも回転（360°）・2本指で拡大/移動。表示中のモデルはAR用と同じ gauge.glb です。</div>
   </div>
 
   <div style="display:grid;gap:14px;min-width:0">
@@ -100,7 +100,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/TrackballControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 (function () {
@@ -146,10 +146,12 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
   stage.prepend(renderer.domElement);
   var scene = new THREE.Scene();
   scene.add(new THREE.HemisphereLight(0xffffff, 0x404850, 0.9));
-  var dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(0.5, 1, 0.8); scene.add(dl);
   var camera = new THREE.PerspectiveCamera(40, 1, 0.001, 50);
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.screenSpacePanning = true;
+  var dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(0.3, 0.6, 1); camera.add(dl); scene.add(camera);
+  var controls = new THREE.TrackballControls(camera, renderer.domElement);
+  controls.rotateSpeed = 3.0; controls.zoomSpeed = 1.2; controls.panSpeed = 0.8;
+  controls.staticMoving = false; controls.dynamicDampingFactor = 0.15;
+  (function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
   var root = null;
   function render() { renderer.render(scene, camera); }
   function fit(dir) {
@@ -169,7 +171,6 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
     camera.aspect = rc.width / Math.max(1, rc.height); camera.updateProjectionMatrix(); render();
   }
   new ResizeObserver(resize).observe(stage);
-  controls.addEventListener('change', render);
   document.getElementById('reset').onclick = function () { fit(); };
   document.getElementById('vz').onclick = function () { fit(new THREE.Vector3(0, 0, 1)); };
   document.getElementById('vx').onclick = function () { fit(new THREE.Vector3(1, 0, 0)); };

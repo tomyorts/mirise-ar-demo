@@ -43,6 +43,10 @@ h1{font-size:19px;margin:0;text-wrap:balance} h2{font-size:15px;margin:0 0 8px}
 .btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
 .status{font-size:13px;color:var(--muted)} .status strong{color:var(--fg)}
 .small{font-size:13px;color:var(--muted)} .tiny{font-size:12px;color:var(--muted)}
+.jaw{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding:10px 14px}
+.jaw label{display:inline-flex;gap:6px;align-items:center;min-height:36px}
+.jaw input{width:20px;height:20px}
+[hidden]{display:none!important}
 .dims{font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums}
 ul{padding-left:1.2em;margin:6px 0}
 code{font-family:var(--mono);font-size:12px;word-break:break-all}
@@ -62,12 +66,18 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
       <button id="reset" type="button">リセット</button>
       <button id="vz" type="button">+Z視点</button>
       <button id="vx" type="button">+X視点</button>
-      <button id="vy" type="button">+Y視点</button>
+      <button id="vy" type="button">上から</button>
+      <button id="vny" type="button">下から</button>
     </div>
-    <div class="note">1本指で回転・2本指で拡大/移動。表示中のモデルはAR用と同じ teeth.glb です（約2 MB）。</div>
+    <div class="note">1本指でどの方向にも回転（360°）・2本指で拡大/移動。表示中のモデルはAR用と同じ teeth.glb です（約2 MB）。</div>
   </div>
 
   <div style="display:grid;gap:14px;min-width:0">
+    <div class="panel jaw" id="jaw">
+      <label><input type="checkbox" id="showU" checked> 上顎</label>
+      <label><input type="checkbox" id="showL" checked> 下顎</label>
+      <label><input type="checkbox" id="openJaw"> 上下を離す（咬合面を見る）</label>
+    </div>
     <div class="panel">
       <span class="badge bar">卓上AR（机や床に置いて見る表示。模型・患者への位置合わせではありません）</span>
       <h2>スマホでARを開く</h2>
@@ -82,7 +92,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
         <li>等倍（1:1）・上下の咬み合わせ位置を保ったまま書き出しています。ARの「等倍」は拡大縮小の制限で、実物との位置一致を意味しません。</li>
         <li>スマホで開きやすいよう表示用に軽量化しています（iPhone用 約9 MB）。元スキャンとの形の差は実測で最大0.09 mm（中央値0.004 mm）です。</li>
         <li>iPhone（Quick Look）の色は、スキャンの頂点カラーを画像に焼き込んで表示しています（実機での見え方は確認中）。</li>
-        <li>AR表示中はこのページの操作は使えません。</li>
+        <li>AR表示中はこのページの操作は使えません。iPhoneのAR（Quick Look）では、床に置いたモデルは縦の軸まわりにしか回せません（Appleの仕様）。裏側や咬合面は、このページの3D表示で自由に回して確認してください。</li>
       </ul>
       <p class="tiny">ボタンを押した後にARが表示されたかどうかは、このページからは判定できません。実機での動作は未確認です。</p>
     </div>
@@ -102,7 +112,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/TrackballControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
 <script>
 (function () {
@@ -148,12 +158,16 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
   stage.prepend(renderer.domElement);
   var scene = new THREE.Scene();
   scene.add(new THREE.HemisphereLight(0xffffff, 0x404850, 0.9));
-  var dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(0.5, 1, 0.8); scene.add(dl);
   var camera = new THREE.PerspectiveCamera(40, 1, 0.001, 50);
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.screenSpacePanning = true;
-  var root = null;
+  // light follows the camera so any side you rotate to stays lit
+  var dl = new THREE.DirectionalLight(0xffffff, 0.8); dl.position.set(0.3, 0.6, 1); camera.add(dl); scene.add(camera);
+  // free rotation in every direction (no pole limit), touch: 1 finger rotate, 2 fingers zoom/pan
+  var controls = new THREE.TrackballControls(camera, renderer.domElement);
+  controls.rotateSpeed = 3.0; controls.zoomSpeed = 1.2; controls.panSpeed = 0.8;
+  controls.staticMoving = false; controls.dynamicDampingFactor = 0.15;
+  var root = null, upper = null, lower = null, base = {};
   function render() { renderer.render(scene, camera); }
+  (function loop() { requestAnimationFrame(loop); controls.update(); render(); })();
   function fit(dir) {
     if (!root) return;
     var b = new THREE.Box3().setFromObject(root);
@@ -164,6 +178,12 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
     camera.near = r / 200; camera.far = r * 50; camera.updateProjectionMatrix();
     controls.target.copy(ctr); controls.update(); render();
   }
+  function applyJaw() {
+    var open = document.getElementById('openJaw').checked;
+    if (upper) { upper.visible = document.getElementById('showU').checked; upper.position.y = base.u + (open ? 0.012 : 0); }
+    if (lower) { lower.visible = document.getElementById('showL').checked; lower.position.y = base.l - (open ? 0.012 : 0); }
+  }
+  ['showU', 'showL', 'openJaw'].forEach(function (id) { document.getElementById(id).addEventListener('change', applyJaw); });
   function resize() {
     var rc = stage.getBoundingClientRect();
     renderer.setSize(rc.width, rc.height, false);
@@ -171,13 +191,19 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
     camera.aspect = rc.width / Math.max(1, rc.height); camera.updateProjectionMatrix(); render();
   }
   new ResizeObserver(resize).observe(stage);
-  controls.addEventListener('change', render);
   document.getElementById('reset').onclick = function () { fit(); };
   document.getElementById('vz').onclick = function () { fit(new THREE.Vector3(0, 0, 1)); };
   document.getElementById('vx').onclick = function () { fit(new THREE.Vector3(1, 0, 0)); };
   document.getElementById('vy').onclick = function () { fit(new THREE.Vector3(0, 1, 0)); };
+  document.getElementById('vny').onclick = function () { fit(new THREE.Vector3(0, -1, 0)); };
   new THREE.GLTFLoader().load('teeth.glb', function (g) {
     root = g.scene; scene.add(root);
+    // the two arches of this sample (part names written by MIRISE XR Studio)
+    upper = root.getObjectByName('part_part_49d2935465ed3936dc871622');
+    lower = root.getObjectByName('part_part_05f9726cf3895bda9371ddd2');
+    if (upper) base.u = upper.position.y;
+    if (lower) base.l = lower.position.y;
+    if (!upper || !lower) document.getElementById('jaw').hidden = true;
     var s = new THREE.Box3().setFromObject(root).getSize(new THREE.Vector3()).multiplyScalar(1000);
     document.getElementById('dims').textContent = '全体 ' + s.x.toFixed(1) + ' × ' + s.y.toFixed(1) + ' × ' + s.z.toFixed(1) + ' mm（GLBの実寸、m単位から換算）';
     resize(); fit();
