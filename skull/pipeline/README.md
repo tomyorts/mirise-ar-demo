@@ -98,6 +98,7 @@ npx playwright install chromium
 | `FAKE_CAMERA=… node camtest2.mjs flip`、`… denied` | イン／アウト切替、カメラを許可しなかったときの案内 |
 | `FAKE_CAMERA=… node longrun.mjs 80` | 80秒動かして、外部への通信の試みが0件であること（`csp violations: []`、`non-local []`） |
 | `FAKE_CAMERA=… node enginetest.mjs` | 顔の読み取り方式（GPU／CPU）の切り替え |
+| `FAKE_CAMERA=… node livecheck.mjs https://…/skull.html` | 公開したページそのものが動くこと、外部への通信の試みが0件であること |
 | `node steps.mjs _test/動画.mp4 名前 0.5,1.7` | 動画の決まった時刻の表示を画像に保存（`THROUGH=1` で途中のコマも順に処理） |
 | `node track.mjs _test/動画.mp4 0 4 12 名前` | コマごとの向き・あごの角度・ずれの数値 |
 | `node shots.mjs 名前 390 780 2 "" '[{"wait":4000,"shot":"start"}]'` | 画面の大きさを指定した見た目の確認 |
