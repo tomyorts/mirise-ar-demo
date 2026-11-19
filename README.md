@@ -46,11 +46,11 @@ PLY（mm）を Z-up→Y-up で取り込み、上下の位置関係を保った�
 
 | ファイル | sha256 | 内容 |
 |---|---|---|
-| skull.html | 8f4ffa25acd7363711bb391923fe8326d2c731be0f78dd710cccaf34e46a30f1 | ページ本体 |
-| skull/app.js | ae2f0068c538ce2e3a2e409bebd64edad107086a6b63a8c7920fe8cca68de1ae | プログラム（`skull/src/` をまとめたもの。three.js・MediaPipe Tasks Vision・meshoptimizer デコーダーを同梱） |
+| skull.html | 12508931340bc4a2424ce91c28301acfdd20b9bb7f26b4bc39db9933ba4cd18f | ページ本体 |
+| skull/app.js | 4f2594915ed344b08f49685f2132d552b39f907f82b72219c787392f4dd1b458 | プログラム（`skull/src/` をまとめたもの。three.js・MediaPipe Tasks Vision・meshoptimizer デコーダーを同梱） |
 | skull/app.css | 0affa9c516e2247af598d379cd4ed52cbd2002f4e0a10060031d45fd0990749f | 見た目 |
 | skull/anatomy.glb | 2edc4e5f78d0342a67ffe5bc76c30904f832d1a06c73aa14727fbaa855b68f87 | 解剖モデル（約 23.6万三角形、meshopt 圧縮、約 1.1 MB） |
-| skull/anatomy.json | d1dfa467f5c9af94222c74018ce84f2267275eb9a44f79a8eaf5a5cef19d0482 | 部位名の位置、顎関節の位置、顔ランドマークの基準位置など |
+| skull/anatomy.json | 18379959f248be23bf6ff96e00f253ef79ba62016136b0f93bf77d401c1085f5 | 部位名の位置、顎関節の位置、顔ランドマークの基準位置など |
 | skull/selftest.jpg | 768f038088025a4832313441bbc53edb37be0f9479fdd9a319f21f635f21b0ee | 起動時に顔追跡の動作を確かめる画像（モデル自身の頭部の描画） |
 | skull/mp/vision_wasm_internal.wasm | 225bc06c0f51a9cf31fea0e9e0b0243e9e01fb5ef332cc1a7fa6656dbdfdaabf | 顔追跡エンジン（npm `@mediapipe/tasks-vision` 1.2.3 のまま） |
 | skull/mp/vision_wasm_internal.js | 2aa5fd3fdd3d8208cd7587df0bb19fb6925c4ea16a76dd025aedc1f64d6a6309 | 同上 |

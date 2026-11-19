@@ -63,21 +63,29 @@ def support(key_or_mesh, d, filt=None):
     if filt is not None: s = np.where(filt(v), s, -1e9)
     i = int(np.argmax(s)); return v[i], d
 L = []
-def add(id_, ja, en, group, mesh, d, filt=None, pair=None, layer='bone', min_brain=None):
+def add(id_, ja, en, group, mesh, d, filt=None, pair=None, layer='bone', min_brain=None, view=None, min_facing=None):
+    """A label: the point of `mesh` furthest in direction d.  `view` is the direction the part is seen from
+    (default: d); the page shows the label while that direction points towards the camera (cosine above
+    min_facing, default 0.24).  Labels sharing `pair` are alternatives: only the best-facing one is shown."""
     p, dn = support(mesh, d, filt)
     e = dict(id=id_, ja=ja, en=en, group=group, layer=layer, pair=pair,
-             p=to_c(p)[0].round(3).tolist(), n=dir_c(dn).round(3).tolist())
+             p=to_c(p)[0].round(3).tolist(), n=dir_c(dn if view is None else view).round(3).tolist())
     if min_brain: e['minBrain'] = min_brain
+    if min_facing: e['minFacing'] = min_facing
     L.append(e)
-add('frontal', '前頭骨', 'Frontal bone', 'cranium', 'frontal', (0, 0.45, 1))
+def band(key, lo, hi):
+    """Vertices of a part between two fractions of its height (0 = lowest point, 1 = highest)."""
+    y = M[key][0][:, 1]; y0, y1 = y.min(), y.max()
+    return lambda v: (v[:, 1] >= y0 + lo * (y1 - y0)) & (v[:, 1] <= y0 + hi * (y1 - y0))
+add('frontal', '前頭骨', 'Frontal bone', 'cranium', 'frontal', (0, 0.45, 1), min_facing=0.1)       # large: also seen from the side
 for sd, sg in (('R', -1), ('L', 1)):
-    add('parietal_' + sd, '頭頂骨', 'Parietal bone', 'cranium', 'parietal_' + sd, (sg * 0.75, 0.66, -0.05), pair='parietal')
+    add('parietal_' + sd, '頭頂骨', 'Parietal bone', 'cranium', 'parietal_' + sd, (sg * 0.75, 0.66, -0.05), pair='parietal', view=(sg * 1.0, 0.15, 0.0))
     add('temporal_' + sd, '側頭骨', 'Temporal bone', 'cranium', 'temporal_' + sd, (sg * 1.0, 0.3, -0.15), pair='temporal')
     add('sphenoid_' + sd, '蝶形骨', 'Sphenoid bone', 'cranium', 'sphenoid', (sg * 1.0, 0.15, 0.5), pair='sphenoid')
-    add('zygomatic_' + sd, '頬骨', 'Zygomatic bone', 'cranium', 'zygomatic_' + sd, (sg * 0.7, -0.05, 0.7), pair='zygomatic')
+    add('zygomatic_' + sd, '頬骨', 'Zygomatic bone', 'cranium', 'zygomatic_' + sd, (sg * 0.7, -0.05, 0.7), filt=band('zygomatic_' + sd, 0.12, 0.5), pair='zygomatic')
     add('maxilla_' + sd, '上顎骨', 'Maxilla', 'cranium', 'maxilla_' + sd, (sg * 0.55, 0.15, 1.0), pair='maxilla')
     add('mandible_' + sd, '下顎骨', 'Mandible', 'jaw', 'mandible', (sg * 0.8, -0.45, 0.45), pair='mandible')
-    add('gonion_' + sd, '下顎角', 'Angle of mandible', 'jaw', 'mandible', (sg * 0.45, -0.75, -0.5), pair='gonion')
+    add('gonion_' + sd, '下顎角', 'Angle of mandible', 'jaw', 'mandible', (sg * 0.45, -0.75, -0.5), pair='gonion', view=(sg * 0.85, -0.35, -0.25))
     add('canine_' + sd, '犬歯', 'Canine', 'cranium', TEETH['FMA55798' if sd == 'R' else 'FMA55799'], (sg * 0.55, -0.3, 1.0), pair='canine', layer='teeth')
     add('premolar_' + sd, '小臼歯', 'Premolars', 'cranium', TEETH['FMA55689' if sd == 'R' else 'FMA55690'], (sg * 1.0, -0.3, 0.35), pair='premolar', layer='teeth')
     add('molar_' + sd, '大臼歯', 'Molars', 'cranium', TEETH['FMA55698' if sd == 'R' else 'FMA55699'], (sg * 1.0, -0.3, 0.1), pair='molar', layer='teeth')
@@ -86,17 +94,22 @@ for sd, sg in (('R', -1), ('L', 1)):
     top = cond[2 if sd == 'R' else 3]
     add('tmj_' + sd, '下顎頭（顎関節）', 'Condyle (TMJ)', 'jaw', 'mandible', (sg * 1.0, 0.2, 0.0),
         filt=lambda v, top=top: (np.linalg.norm(v - top, axis=1) < 11), pair='tmj')
-add('occipital', '後頭骨', 'Occipital bone', 'cranium', 'occipital', (0, 0.15, -1))
+for sd, sg in (('R', -1), ('L', 1)):
+    add('occipital_' + sd, '後頭骨', 'Occipital bone', 'cranium', 'occipital', (sg * 0.6, -0.15, -0.75), pair='occipital', view=(sg * 0.95, -0.05, -0.3))
 add('nasal', '鼻骨', 'Nasal bone', 'cranium', 'nasal_R', (0.6, 0.3, 1.0))
-add('chin', 'オトガイ', 'Chin (mental protuberance)', 'jaw', 'mandible', (0, -0.3, 1.0), filt=lambda v: np.abs(v[:, 0]) < 8)
+add('chin', 'オトガイ', 'Chin (mental protuberance)', 'jaw', 'mandible', (0, -0.3, 1.0), filt=lambda v: np.abs(v[:, 0]) < 8, min_facing=0.1)
 add('incisor', '切歯', 'Incisors', 'cranium', TEETH['FMA55681'], (0.3, -0.5, 1.0), layer='teeth')
 for sd, sg in (('R', -1), ('L', 1)):
     add('frontal_lobe_' + sd, '前頭葉', 'Frontal lobe', 'cranium', 'frontal_lobe_' + sd, (sg * 0.5, 0.55, 0.66), pair='frontal_lobe', layer='brain')
-    add('parietal_lobe_' + sd, '頭頂葉', 'Parietal lobe', 'cranium', 'parietal_lobe_' + sd, (sg * 0.6, 0.75, -0.25), pair='parietal_lobe', layer='brain')
+    add('parietal_lobe_' + sd, '頭頂葉', 'Parietal lobe', 'cranium', 'parietal_lobe_' + sd, (sg * 0.75, 0.6, -0.3), pair='parietal_lobe', layer='brain', view=(sg * 1.0, 0.1, -0.05))
     add('temporal_lobe_' + sd, '側頭葉', 'Temporal lobe', 'cranium', 'temporal_lobe_' + sd, (sg * 0.85, -0.3, 0.6), pair='temporal_lobe', layer='brain')
-    add('occipital_lobe_' + sd, '後頭葉', 'Occipital lobe', 'cranium', 'occipital_lobe_' + sd, (sg * 0.45, 0.05, -0.9), pair='occipital_lobe', layer='brain')
-    add('cerebellum_' + sd, '小脳', 'Cerebellum', 'cranium', 'cerebellum', (sg * 0.6, -0.5, -0.65), pair='cerebellum', layer='brain')
-add('brainstem', '脳幹', 'Brainstem', 'cranium', 'brainstem', (0, -0.3, 1.0), layer='brain', min_brain=0.93)
+    add('occipital_lobe_' + sd, '後頭葉', 'Occipital lobe', 'cranium', 'occipital_lobe_' + sd, (sg * 0.75, 0.1, -0.65), pair='occipital_lobe', layer='brain', view=(sg * 0.95, 0.0, -0.3))
+    add('cerebellum_' + sd, '小脳', 'Cerebellum', 'cranium', 'cerebellum', (sg * 0.8, -0.45, -0.4), pair='cerebellum', layer='brain', view=(sg * 0.95, -0.1, -0.25))
+# brainstem: from the front it shows between the temporal poles (only while the head faces the camera);
+# from the side its lower end (medulla) shows below the temporal lobe
+add('brainstem', '脳幹', 'Brainstem', 'cranium', 'brainstem', (0, -0.3, 1.0), pair='brainstem', layer='brain', min_brain=0.93, min_facing=0.85)
+for sd, sg in (('R', -1), ('L', 1)):
+    add('brainstem_' + sd, '脳幹', 'Brainstem', 'cranium', 'brainstem', (sg * 0.5, -0.8, 0.3), pair='brainstem', layer='brain', view=(sg * 0.95, -0.1, 0.3), min_facing=0.5)
 
 # ---------- reference face landmarks of this model (tracker's 468 points located on the model's own skin) ----------
 Lh = np.load(os.path.join(CALIB, 'L_h.npy'))                      # true 3D positions of the tracker's landmarks on the model's skin

@@ -30,6 +30,8 @@ LOWER_TEETH = ['FMA57140', 'FMA57141', 'FMA57142', 'FMA57143', 'FMA55686', 'FMA5
                'FMA55694', 'FMA55695', 'FMA55703', 'FMA55704', 'FMA55705', 'FMA55706']
 TOOTH_TRIS = 1000
 # brain: name -> list of (source id, target tris, side) ; side None = take whole, 'L'/'R' = split by x sign
+# FMA72701 / FMA72702 are called "accessory short gyrus" in the data set's part list, but the meshes lie on the
+# lateral surface below the middle frontal gyrus, where the inferior frontal gyrus is: grouped with the frontal lobe.
 BRAIN = {
     'frontal_lobe_R':   [('FMA72653', 4800, None), ('FMA72655', 2600, None), ('FMA72661', 3000, None), ('FMA72701', 2600, None), ('BP51', 1700, 'R')],
     'frontal_lobe_L':   [('FMA72654', 4800, None), ('FMA72656', 2600, None), ('FMA72662', 3000, None), ('FMA72702', 2600, None), ('BP51', 1700, 'L')],
