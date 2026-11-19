@@ -1,4 +1,4 @@
-# 透視ミラーのモデル作成に使った Python パッケージ（Python 3.13 で確認）
+# MIRAI Skull Mirror（透視ミラー）のモデル作成に使った Python パッケージ（Python 3.13 で確認）
 numpy==2.5.3
 trimesh==5.2.1
 opencv-python-headless==5.0.0.93

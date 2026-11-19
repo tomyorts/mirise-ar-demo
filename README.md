@@ -1,6 +1,6 @@
 # MIRISE XR AR demo（合成データ・研究試作）
 
-スマホで卓上ARを試すための静的デモです。中身は**合成の100 mmゲージ2部品**、利用者が公開可能なサンプルとして提供した**口腔内スキャン（上下歯列、PLY）**、公開データベース BodyParts3D から作った**頭蓋骨・歯・脳の標準モデル**（透視ミラー用）だけです。症例データは含みません。臨床使用不可。
+スマホで卓上ARを試すための静的デモです。中身は**合成の100 mmゲージ2部品**、利用者が公開可能なサンプルとして提供した**口腔内スキャン（上下歯列、PLY）**、公開データベース BodyParts3D から作った**頭蓋骨・歯・脳の標準モデル**（MIRAI Skull Mirror 用）だけです。症例データは含みません。臨床使用不可。
 
 - `index.html`：3D表示（`gauge.glb` を読み込み）と、iPhone/iPad（Quick Look）・Android（Scene Viewer）のAR起動ボタン
 - `gauge.usdz`：iPhone/iPad用（Safariで直接開くとQuick Look）
@@ -27,7 +27,7 @@ PLY（mm）を Z-up→Y-up で取り込み、上下の位置関係を保った�
 
 表示用の軽量化：上顎 23.7万→4万、下顎 17.2万→4万三角形（meshoptimizer、境界固定）。元スキャンの全頂点から軽量化後の表面までの実測距離は中央値 0.003–0.004 mm、最大 0.093 mm。
 
-## 透視ミラー（skull.html）
+## MIRAI Skull Mirror｜透視ミラー（skull.html）
 
 カメラ（イン・アウト）に映した顔に、頭蓋骨・歯・脳の**標準的な解剖モデル**を重ねて表示するページです。口を開けると下顎骨が動きます。
 ご本人の骨や脳を写すものではありません。研究試作・臨床使用不可。
@@ -46,9 +46,9 @@ PLY（mm）を Z-up→Y-up で取り込み、上下の位置関係を保った�
 
 | ファイル | sha256 | 内容 |
 |---|---|---|
-| skull.html | 12508931340bc4a2424ce91c28301acfdd20b9bb7f26b4bc39db9933ba4cd18f | ページ本体 |
-| skull/app.js | 4f2594915ed344b08f49685f2132d552b39f907f82b72219c787392f4dd1b458 | プログラム（`skull/src/` をまとめたもの。three.js・MediaPipe Tasks Vision・meshoptimizer デコーダーを同梱） |
-| skull/app.css | 0affa9c516e2247af598d379cd4ed52cbd2002f4e0a10060031d45fd0990749f | 見た目 |
+| skull.html | 0f3c1be4f392c997d3c83e8f0fb93be237de34cc5b071911596bf5de4fcdc501 | ページ本体 |
+| skull/app.js | 6b6ef01816a83abde004533c26fcefdb2fa8d5b149d83a565b1bb9d4ea31b386 | プログラム（`skull/src/` をまとめたもの。three.js・MediaPipe Tasks Vision・meshoptimizer デコーダーを同梱） |
+| skull/app.css | 930c3cea85c032e7588fd5aad83c0bab65c666d7a6d79eb7881c90c52f14be5f | 見た目 |
 | skull/anatomy.glb | 2edc4e5f78d0342a67ffe5bc76c30904f832d1a06c73aa14727fbaa855b68f87 | 解剖モデル（約 23.6万三角形、meshopt 圧縮、約 1.1 MB） |
 | skull/anatomy.json | 18379959f248be23bf6ff96e00f253ef79ba62016136b0f93bf77d401c1085f5 | 部位名の位置、顎関節の位置、顔ランドマークの基準位置など |
 | skull/selftest.jpg | 768f038088025a4832313441bbc53edb37be0f9479fdd9a319f21f635f21b0ee | 起動時に顔追跡の動作を確かめる画像（モデル自身の頭部の描画） |

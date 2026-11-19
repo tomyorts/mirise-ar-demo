@@ -1,4 +1,4 @@
-# 透視ミラー: 取得した元データ・中間ファイル・ツール（作り直せるもの）
+# MIRAI Skull Mirror（透視ミラー）: 取得した元データ・中間ファイル・ツール（作り直せるもの）
 node_modules/
 skull/pipeline/model/raw/*.stl
 skull/pipeline/model/raw/*.part

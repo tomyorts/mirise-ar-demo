@@ -1,4 +1,4 @@
-/* 透視ミラー — styles.
+/* MIRAI Skull Mirror（透視ミラー） — styles.
    Palette comes from the reading room: film black-blue, light-box white, bone ivory, and the red pencil of a tracing (errors only). */
 :root{
   --film:#0a1018; --film-2:#131d2a; --light:#f2f6f8; --mute:#a3b3c2; --bone:#e9dfc9; --bone-ink:#1b170f; --trace:#f08a7e;
@@ -30,8 +30,8 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   pointer-events:none;transition:opacity .25s}
 .hud>*{pointer-events:auto}
 .brand{display:flex;align-items:baseline;gap:9px;min-width:0;text-shadow:0 1px 6px rgba(0,0,0,.5)}
-.brand .mark{font-size:10.5px;letter-spacing:.2em;color:var(--mute);white-space:nowrap}
-.brand .name{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.06em;white-space:nowrap}
+.brand .sub{font-size:11px;letter-spacing:.18em;color:var(--mute);white-space:nowrap}
+.brand .name{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:.04em;white-space:nowrap}
 .hud-actions{display:flex;gap:8px}
 .icon-btn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 12px 0 10px;border:1px solid var(--hair);border-radius:19px;
   background:var(--panel);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-size:12.5px;cursor:pointer}
@@ -93,7 +93,9 @@ body.clean .hud>*{pointer-events:none}
   background:linear-gradient(to top,rgba(10,16,24,.96) 0%,rgba(10,16,24,.82) 46%,rgba(10,16,24,.18) 100%);overflow:auto}
 .card{width:100%;max-width:440px;padding:4px 6px 10px}
 .eyebrow{margin:0 0 6px;font-size:10.5px;letter-spacing:.2em;color:var(--mute)}
-.card h1{margin:0 0 10px;font-family:var(--display);font-weight:600;font-size:clamp(34px,9.5vw,46px);line-height:1.15;letter-spacing:.08em}
+.card h1{margin:0 0 5px;font-family:var(--display);font-weight:600;font-size:clamp(26px,7.4vw,38px);line-height:1.2;letter-spacing:.03em}
+.card h1 .nb{white-space:nowrap}
+.subname{margin:0 0 12px;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:.26em;color:var(--bone)}
 .lead{margin:0 0 14px;font-size:15px;line-height:1.75}
 .points{list-style:none;margin:0 0 18px;padding:0;border-top:1px solid var(--hair)}
 .points li{padding:9px 0;border-bottom:1px solid var(--hair);font-size:13px;line-height:1.65;color:var(--mute)}
@@ -130,9 +132,9 @@ body.clean .hud>*{pointer-events:none}
 }
 @media (max-width:520px){
   .icon-btn{padding:0;width:40px;height:40px;border-radius:20px;justify-content:center} .icon-btn span{display:none}
-  .brand .mark{display:none}
+  .brand .sub{display:none}
   .chips{gap:6px} .seg button{padding:0 8px} .chip{padding:0 11px}
-  .card h1{margin-bottom:8px} .lead{font-size:14.5px;margin-bottom:10px} .points{margin-bottom:14px} .points li{padding:7px 0;font-size:12.5px}
+  .card h1{margin-bottom:3px} .subname{margin-bottom:9px;font-size:14px} .lead{font-size:14.5px;margin-bottom:10px} .points{margin-bottom:14px} .points li{padding:7px 0;font-size:12.5px}
 }
 @media (max-height:520px){ .caption{display:none} .depth{margin-bottom:6px} .dock{padding-top:14px} }
 @media (prefers-reduced-motion:reduce){ *{transition:none !important} }

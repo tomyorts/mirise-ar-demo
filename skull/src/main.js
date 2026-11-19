@@ -456,7 +456,7 @@ async function takePhoto() {
   const blob = await new Promise((res) => c.toBlob(res, 'image/png'));
   if (!blob) return toast('画像を作れませんでした');
   const d = new Date(), p2 = (n) => String(n).padStart(2, '0');
-  const name = `toushi-mirror-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}.png`;
+  const name = `mirai-skull-mirror-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}.png`;
   const file = new File([blob], name, { type: 'image/png' });
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try { await navigator.share({ files: [file] }); } catch { /* cancelled */ }

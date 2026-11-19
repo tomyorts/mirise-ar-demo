@@ -9,8 +9,8 @@
 <link rel="icon" href="data:,">
 <!-- This page may only talk to its own origin: no script, style, image or network connection to any other server. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: mediastream:; connect-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>MIRISE XR 透視ミラー（頭蓋骨・脳）</title>
-<link rel="stylesheet" href="skull/app.css?v=8d34e38574">
+<title>MIRAI Skull Mirror｜透視ミラー（頭蓋骨・脳）</title>
+<link rel="stylesheet" href="skull/app.css?v=db4d9fa775">
 </head>
 <body>
 <main id="stage">
@@ -19,7 +19,7 @@
   <video id="cam" class="src-video" playsinline muted autoplay></video>
 
   <header class="hud" id="hud">
-    <div class="brand"><span class="mark">MIRISE XR</span><span class="name">透視ミラー</span></div>
+    <div class="brand"><span class="name">MIRAI Skull Mirror</span><span class="sub">透視ミラー</span></div>
     <div class="hud-actions">
       <button class="icon-btn" id="btnShot" type="button" aria-label="表示中の1枚を画像にする">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle class="fill" cx="12" cy="12" r="5"/></svg>
@@ -65,8 +65,9 @@
 
   <section class="start" id="start">
     <div class="card" id="card">
-      <p class="eyebrow">MIRISE XR ・ 研究試作</p>
-      <h1>透視ミラー</h1>
+      <p class="eyebrow">研究試作</p>
+      <h1>MIRAI <span class="nb">Skull Mirror</span></h1>
+      <p class="subname">透視ミラー</p>
       <p class="lead">カメラに顔を映すと、頭蓋骨と脳が透けて見えます。口を開けると、あごの骨も一緒に動きます。</p>
       <ul class="points">
         <li><strong>映像はこの端末の中だけで処理します。</strong>どこにも送信せず、保存もしません。</li>
@@ -118,6 +119,6 @@
     </div>
   </section>
 </main>
-<script type="module" src="skull/app.js?v=8d34e38574"></script>
+<script type="module" src="skull/app.js?v=db4d9fa775"></script>
 </body>
 </html>

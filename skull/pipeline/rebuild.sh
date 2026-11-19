@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 透視ミラー: 配布ファイルを元データから作り直す（手順は README.md）。
+# MIRAI Skull Mirror（透視ミラー）: 配布ファイルを元データから作り直す（手順は README.md）。
 #   ./rebuild.sh              配布ファイルを作り直し、記録済みのチェックサムと照合する
 #   ./rebuild.sh --calibrate  位置合わせの定数も計算し直して、採用値（model/calib/）と比べる
 set -euo pipefail

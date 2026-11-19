@@ -1,5 +1,5 @@
-透視ミラー（skull.html）に含まれる第三者の著作物とライセンス
-Third-party works included in the see-through mirror page, and their licences
+MIRAI Skull Mirror（透視ミラー、skull.html）に含まれる第三者の著作物とライセンス
+Third-party works included in MIRAI Skull Mirror (skull.html), and their licences
 
 ==============================================================================
 1. 解剖モデル / Anatomy model

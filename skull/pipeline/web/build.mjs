@@ -51,7 +51,7 @@ const noUsageLog = {
 const r = await build({
   entryPoints: [path.join(srcDir, 'main.js')], outfile: path.join(sk, 'app.js'), bundle: true, format: 'esm', target: ['es2020', 'safari15'],
   minify: true, legalComments: 'none', nodePaths: [path.join(here, 'node_modules')], logLevel: 'warning', metafile: true, plugins: [noUsageLog],
-  banner: { js: `/* 透視ミラー ${version} — bundles three.js (MIT), MediaPipe Tasks Vision (Apache-2.0; modified: usage logging removed, see skull/pipeline/web/build.mjs) and the meshoptimizer decoder (MIT). Licences: skull/LICENSES.txt. Source: skull/src/ */` },
+  banner: { js: `/* MIRAI Skull Mirror（透視ミラー） ${version} — bundles three.js (MIT), MediaPipe Tasks Vision (Apache-2.0; modified: usage logging removed, see skull/pipeline/web/build.mjs) and the meshoptimizer decoder (MIT). Licences: skull/LICENSES.txt. Source: skull/src/ */` },
 });
 if (!libPatched) throw new Error('the usage-logging patch was not applied: @mediapipe/tasks-vision/vision_bundle.mjs was not bundled');
 // audit: the bundle must not name any other server
