@@ -1,0 +1,7 @@
+# 透視ミラーのモデル作成に使った Python パッケージ（Python 3.13 で確認）
+numpy==2.5.3
+trimesh==5.2.1
+opencv-python-headless==5.0.0.93
+scipy==1.18.1
+# 位置合わせの計算し直し（./rebuild.sh --calibrate）と scan_video.py だけが使う
+mediapipe==0.10.32

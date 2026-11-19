@@ -1,0 +1,12 @@
+# 透視ミラー: 取得した元データ・中間ファイル・ツール（作り直せるもの）
+node_modules/
+skull/pipeline/model/raw/*.stl
+skull/pipeline/model/raw/*.part
+skull/pipeline/model/canon/
+skull/pipeline/model/cache/
+skull/pipeline/model/out/
+skull/pipeline/model/dist_assets/
+skull/pipeline/checks/out/
+__pycache__/
+# 検証用の動画（人の顔が写るもの）は公開しない
+_test/

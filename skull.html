@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a1018">
+<link rel="icon" href="data:,">
+<!-- This page may only talk to its own origin: no script, style, image or network connection to any other server. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: mediastream:; connect-src 'self' blob:; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>MIRISE XR 透視ミラー（頭蓋骨・脳）</title>
+<link rel="stylesheet" href="skull/app.css?v=31530a4111">
+</head>
+<body>
+<main id="stage">
+  <canvas id="gl" aria-label="カメラの映像と、顔に重ねた頭蓋骨・脳の表示"></canvas>
+  <canvas id="labels" aria-hidden="true"></canvas>
+  <video id="cam" class="src-video" playsinline muted autoplay></video>
+
+  <header class="hud" id="hud">
+    <div class="brand"><span class="mark">MIRISE XR</span><span class="name">透視ミラー</span></div>
+    <div class="hud-actions">
+      <button class="icon-btn" id="btnShot" type="button" aria-label="表示中の1枚を画像にする">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle class="fill" cx="12" cy="12" r="5"/></svg>
+        <span>撮影</span>
+      </button>
+      <button class="icon-btn" id="btnFlip" type="button" aria-label="カメラを切り替える（イン／アウト）">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l1-1.6h6.6l1 1.6h1.2A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><path d="M9 11.5a3.2 3.2 0 0 1 5.5-1.5l1 1M15 13.5a3.2 3.2 0 0 1-5.5 1.5l-1-1"/><path d="M15.5 9v2h-2M8.5 16v-2h2"/></svg>
+        <span>切替</span>
+      </button>
+      <button class="icon-btn" id="btnInfo" type="button" aria-label="このページについて">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.5v.3"/></svg>
+        <span>説明</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="side at-right" id="side" role="img" aria-label="映っている方の右側">R</div>
+  <p class="caption" id="caption">標準的な解剖モデルを顔に重ねた表示です。ご本人の骨や脳を写したものではありません。</p>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <pre class="debug" id="debug" hidden></pre>
+
+  <section class="dock" id="dock" aria-label="表示の調整">
+    <div class="depth">
+      <label for="depth">透視</label>
+      <div class="track">
+        <input id="depth" type="range" min="0" max="100" step="1" value="50" aria-label="透視の深さ（皮膚から骨、脳へ）">
+        <div class="ticks" aria-hidden="true"><span>皮膚</span><span>骨</span><span>脳</span></div>
+      </div>
+    </div>
+    <div class="chips">
+      <div class="seg" role="group" aria-label="見せる範囲">
+        <button type="button" data-region="whole" aria-pressed="true">全体</button>
+        <button type="button" data-region="half" aria-pressed="false">半分</button>
+        <button type="button" data-region="lens" aria-pressed="false">のぞき窓</button>
+      </div>
+      <div class="seg" role="group" aria-label="見え方">
+        <button type="button" data-style="solid" aria-pressed="true">立体</button>
+        <button type="button" data-style="xray" aria-pressed="false">X線風</button>
+      </div>
+      <button class="chip" id="btnLabel" type="button" aria-pressed="false"><span class="k">名前</span><span class="v">なし</span></button>
+    </div>
+  </section>
+
+  <section class="start" id="start">
+    <div class="card" id="card">
+      <p class="eyebrow">MIRISE XR ・ 研究試作</p>
+      <h1>透視ミラー</h1>
+      <p class="lead">カメラに顔を映すと、頭蓋骨と脳が透けて見えます。口を開けると、あごの骨も一緒に動きます。</p>
+      <ul class="points">
+        <li><strong>映像はこの端末の中だけで処理します。</strong>どこにも送信せず、保存もしません。</li>
+        <li>アプリの追加は不要です。カメラの使用を「許可」してください。</li>
+        <li>表示は標準的な解剖モデルです。ご本人の骨や脳ではなく、診断には使えません。</li>
+      </ul>
+      <button class="primary" id="btnStart" type="button">カメラを開始</button>
+      <div class="progress" aria-hidden="true"><div class="bar" id="bar"></div></div>
+      <p class="note" id="startNote">初回は読み込みに少し時間がかかります（Wi-Fi 推奨）</p>
+      <p class="error" id="startErr" role="alert" hidden></p>
+      <p class="links"><button type="button" class="link" data-open-info>しくみと出典を見る</button><a class="link" href="./">ほかのデモ</a></p>
+    </div>
+  </section>
+
+  <section class="sheet" id="info" hidden role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+    <div class="sheet-body">
+      <div class="sheet-head"><h2 id="infoTitle">このページについて</h2><button class="icon-btn plain" id="btnInfoClose" type="button" aria-label="閉じる"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <h3>何をしているか</h3>
+      <p>カメラの映像から顔の向き・大きさ・口の開き具合を読み取り、標準的な成人の頭蓋骨・歯・脳の3Dモデルを同じ位置と向きで重ねています。顔の縦横の比率に合わせてモデルを少し伸縮し、口を開けると下あごの骨が顎関節を軸に回転しながら前下方へすべります。</p>
+      <p class="warn">ご本人の骨・歯・脳を写したものではありません。位置や大きさは目安で、診断・計測・治療の判断には使えません（研究試作・臨床使用不可）。</p>
+      <h3>映像の扱い</h3>
+      <ul>
+        <li>顔の読み取りも描画も、このブラウザの中だけで行います。映像・顔の特徴・画像を外へ送る処理はありません。</li>
+        <li>このページは、自分自身の置き場所以外への通信をブラウザの機能（コンテンツセキュリティポリシー）で禁止しています。</li>
+        <li>顔の追跡に使っている部品（MediaPipe）には、利用統計（処理の回数や所要時間など。映像は含みません）を Google に送る機能がもともと付いています。このページではその機能を取り除いたうえで、通信も禁止しています。</li>
+        <li>必要なファイルを読み込んだ後は、通信なしで動きます。</li>
+        <li>画像ができるのは「撮影」を押したときだけです。スマートフォンでは共有メニューが開き、保存先をご自身で選びます。パソコンでは端末に保存されます。顔が写った画像ですので、取り扱いにご注意ください。</li>
+      </ul>
+      <h3>使い方</h3>
+      <ul>
+        <li>「透視」のつまみ：左から 皮膚 → 骨 → 脳 の順に透けていきます。</li>
+        <li>「半分」：顔の中心線で片側だけ透かします。もう一度押すと左右が入れ替わります。「のぞき窓」：指でなぞった所だけ透かします。</li>
+        <li>「名前」：骨・歯・脳の部位名を、日本語／英語で表示します。</li>
+        <li>「切替」：イン（自分側）とアウト（相手側）のカメラを切り替えます。映像の何もない所を押すと、操作パネルを隠せます。</li>
+        <li>画面上の「R」は、映っている方の右側を示します（レントゲン写真の表示にならっています）。</li>
+        <li>パソコンでは、F キーで全画面表示に切り替えられます。表示中は画面が自動で消えないようにしています。</li>
+      </ul>
+      <h3>うまく映らないとき</h3>
+      <ul>
+        <li>顔全体が明るく映るようにし、カメラから30〜80cmほど離れてください。マスクや手で顔が隠れていると読み取れません。</li>
+        <li>真横を向くと、顔を見失うことがあります。正面に戻ると表示も戻ります。</li>
+        <li class="engine" id="engineRow" hidden>顔の読み取り方式：<span id="engine"></span>。動きがおかしいときは <button type="button" class="link" id="btnEngine"></button> と直ることがあります。</li>
+      </ul>
+      <h3>出典とライセンス</h3>
+      <p>解剖モデル：<strong>BodyParts3D, © ライフサイエンス統合データベースセンター licensed under CC 表示-継承 2.1 日本</strong>（リリース3.0の頭蓋の各骨・下顎骨・歯・脳の部品を軽量化し、顔の追跡に合わせて位置・大きさを調整して使用。加工後のモデル <code>skull/anatomy.glb</code> も同じライセンスで公開しています）。</p>
+      <p>顔の追跡：MediaPipe Face Landmarker（Apache License 2.0。利用統計の送信機能を取り除いて同梱）。描画：three.js（MIT License）。圧縮：meshoptimizer（MIT License）。</p>
+      <p><a class="link" href="skull/LICENSES.txt">ライセンスの全文を見る</a></p>
+      <p class="tiny">版 <span id="version"></span></p>
+    </div>
+  </section>
+</main>
+<script type="module" src="skull/app.js?v=31530a4111"></script>
+</body>
+</html>
